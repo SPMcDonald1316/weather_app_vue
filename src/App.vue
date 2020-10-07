@@ -2,16 +2,22 @@
   <div id="app">
     <main>
       <div class="search-box">
-        <input type="text" class="search-bar" placeholder="Location..."/>
+        <input 
+          type="text" 
+          class="search-bar" 
+          placeholder="Location..."
+          v-model="location"
+          @keyup.enter="fetchWeather"
+        />
       </div>
-      <div class="weather-wrap">
+      <div class="weather-wrap" v-if="typeof weather.main !== 'undefined'">
         <div class="location-box">
-          <div class="location"></div>
-          <div class="date"></div>
+          <div class="location">{{ weather.name }}, {{ weather.sys.country }}</div>
+          <div class="date">{{ displayDate() }}</div>
         </div>
         <div class="weather-box">
-          <div class="temp"></div>
-          <div class="weather"></div>
+          <div class="temp">{{ Math.round(weather.main.temp) }}°f</div>
+          <div class="weather">{{ weather.weather[0].main }}</div>
         </div>
       </div>
     </main>
@@ -24,9 +30,23 @@ export default {
   name: 'App',
   data() {
     return {
-      apiKey: process.env.VUE_APP_KEY
+      apiKey: process.env.VUE_APP_KEY,
+      urlBase: process.env.VUE_APP_URL,
+      location: '',
+      weather: {}
     }
-  }
+  },
+  methods: {
+    fetchWeather() {
+      fetch(`${this.urlBase}weather?q=${this.location}&units=imperial&APPID=${this.apiKey}`)
+        .then(response => response.json())
+        .then(data => this.weather = data)
+    },
+    displayDate() {
+      const date = new Date
+      return date.toDateString()
+    }
+  },
 }
 </script>
 
